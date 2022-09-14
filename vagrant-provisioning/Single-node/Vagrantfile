@@ -1,0 +1,38 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+server_ip = "172.16.16.111"
+
+
+# Extra parameters in INSTALL_K3S_EXEC variable because of
+# K3s picking up the wrong interface when starting server and agent
+# https://github.com/alexellis/k3sup/issues/306
+
+server_script = <<-SHELL
+    sudo -i
+    export INSTALL_K3S_EXEC="--bind-address=#{server_ip} --node-external-ip=#{server_ip} --flannel-iface=eth1"
+    curl -sfL https://get.k3s.io | sh -
+
+    echo "copying KUBECONFIG file from /etc/rancher/k32/k3s.yaml"
+    mkdir /home/vagrant/.kube && cp /etc/rancher/k3s/k3s.yaml /home/vagrant/.kube/config 
+    chown -R vagrant.vagrant /home/vagrant/.kube
+    echo "export KUBECONFIG=/home/vagrant/.kube/config" >> /home/vagrant/.bashrc
+    echo "Sleeping waiting for k3s to start"
+    sleep 20
+    SHELL
+
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/ubuntu2004"
+
+  config.vm.define "k3ssingle", primary: true do |server|
+    server.vm.network "private_network", ip: server_ip
+    server.vm.hostname = "server"
+    server.vm.provider "virtualbox" do |vb|
+      vb.memory = "2048"
+      vb.cpus = "2"
+    end
+    server.vm.provision "shell", inline: server_script
+  end
+
+end
