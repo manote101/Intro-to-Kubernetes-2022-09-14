@@ -8,7 +8,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "k3sserver", primary: true do |server|
     server.vm.network "private_network", ip: server_ip
-    server.vm.hostname = "server"
+    server.vm.hostname = "k3server"
     server.vm.provider "virtualbox" do |vb|
       vb.memory = "2048"
       vb.cpus = "2"
