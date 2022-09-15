@@ -14,11 +14,11 @@ spec:
               service:
                 name: web
                 port:
-                  number: 8080
+                  number: 80
           - path: /foo
             pathType: Exact
             backend:
               service:
                 name:  web
                 port:
-                  number: 8080
+                  number: 80
